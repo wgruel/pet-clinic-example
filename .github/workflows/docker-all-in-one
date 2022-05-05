@@ -1,0 +1,42 @@
+
+name: Compile,Build,Release
+on: [ pull_request, push, workflow_dispatch ]
+env:
+  APP_NAME: petclinic
+  APP_PORT: 8080
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-20.04
+    outputs:
+      jarname: ${{ steps.get-jarname.outputs.jarname }}
+      commit_sha: ${{ steps.commit-data.outputs.short_sha }}
+    env:
+      TARGET_DIR: target/
+      MVN_REPO_DIR: ~/.m2/repository
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        distribution: temurin
+        java-version: 11
+        cache: maven
+    - name: Compile, build and push
+      env: 
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        APP_NAME: "pet-clinic-test123"
+      run: |
+        heroku container:login 
+        mvn -ntp -B package
+        ls
+        docker build --tag registry.heroku.com/${APP_NAME}/web -f Dockerfile .
+        docker push registry.heroku.com/${APP_NAME}/web
+    - name: Release
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: |
+        heroku stack:set container --app ${APP_NAME}
+        heroku container:release web --app pet-clinic-test123
