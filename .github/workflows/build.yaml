@@ -20,8 +20,21 @@ jobs:
         java-version: 11
         cache: maven
     #### AUFGABE 2: SONAR
-      # hier kommt die Konfiguration der Sonar-Analyse rein
-  
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+    - name: sonar analysis
+      run: |
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=azure_voting_service  
     - name: Compile, build and push
       run: |
         #### AUFGABE 3 DOCKER BUILD UND PUSH
