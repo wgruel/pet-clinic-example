@@ -7,7 +7,7 @@ env:
   #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
   #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  HEROKU_API_KEY: "5d5a6800-a0a0-49d5-91c9-513481257baes"
+  HEROKU_API_KEY: "5d5a6800-a0a0-49d5-91c9-513481257bae"
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
   SONAR_TOKEN: "b6d62bfe0d89c66edb588b0d9e26b027dbd4a409"
 
