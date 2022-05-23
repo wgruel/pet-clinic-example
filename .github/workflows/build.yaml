@@ -1,58 +1,21 @@
-name: Docker Build and Release
-# on: [  ]
-on: [ push ]
-env:
-  APP_NAME: "pet-clinic-wg"
-  #HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-  #GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-  #SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+name: Push Container to Heroku
 
-  HEROKU_API_KEY: "5d5a6800-a0a0-49d5-91c9-513481257bae"
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-  SONAR_TOKEN: "b6d62bfe0d89c66edb588b0d9e26b027dbd4a409"
-
+on: [push]
 
 jobs:
-  compile:
-    name: Compile
-    runs-on: ubuntu-20.04
+  build:
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup Java
-      uses: actions/setup-java@v2
-      with:
-        distribution: temurin
-        java-version: 11
-    #    cache: maven
-    ####
-    #- name: Cache SonarCloud packages
-    #  uses: actions/cache@v1
-    #  with:
-    #      path: ~/.sonar/cache
-    #      key: ${{ runner.os }}-sonar
-    #      restore-keys: ${{ runner.os }}-sonar
-    #- name: Cache Maven packages
-    #  uses: actions/cache@v1
-    #  with:
-    #      path: ~/.m2
-    #      key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-    #      restore-keys: ${{ runner.os }}-m2
-    #- name: sonar analysis
-    #  run: |
-    #    mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=azure_voting_service
-    ####
+    - uses: actions/checkout@v1
     - name: Login to Heroku Container registry
       env: 
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:login     
-    - name: Compile, build and push
-      run: |
-        heroku container:login 
-        mvn package
-        docker build --tag registry.heroku.com/${APP_NAME}/web -f Dockerfile .
-        docker push registry.heroku.com/${APP_NAME}/web
+      run: heroku container:login 
+    - name: Build and push
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web 
     - name: Release
-      run: |
-        heroku container:login 
-        heroku stack:set container --app ${APP_NAME}
-        heroku container:release web --app ${APP_NAME}
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web 
