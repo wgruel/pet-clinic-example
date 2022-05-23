@@ -1,11 +1,10 @@
 name: Docker Build and Release
-on: [ push ]
+on: [  ]
+#on: [ push ]
 env:
-#### An dieser Stelle müssen eure persönlichen Umgebungsvariablen eingetragen werden
-  # Tip: Die Token/der API-Key werden als Secrets in den Repository-Settings eingetragen und hier referenziert.
-  APP_NAME: "pet-clinic-wg" 
+  APP_NAME: "pet-clinic-wg"
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   compile:
@@ -19,28 +18,31 @@ jobs:
         distribution: temurin
         java-version: 11
         cache: maven
-    #### AUFGABE 2: SONAR
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v1
-        with:
+    ####
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-      - name: Cache Maven packages
-        uses: actions/cache@v1
-        with:
+    - name: Cache Maven packages
+      uses: actions/cache@v1
+      with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Build and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=wgruel_pet-clinic-example        #### AUFGABE 3 DOCKER BUILD UND PUSH
-          # an dieser Stelle wird die Aufgabe 3 bearbeitet: heroku login, docker build, docker push
+    - name: sonar analysis
+      run: |
+        mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=azure_voting_service
+    ####
+    - name: Compile, build and push
+      run: |
         heroku container:login 
-        heroku stack:set container --app ${APP_NAME}        
+        mvn package
+        docker build --tag registry.heroku.com/${APP_NAME}/web -f Dockerfile .
+        docker push registry.heroku.com/${APP_NAME}/web
     - name: Release
       run: |
-        #### AUFGABE 4 DEPLOYMENT AUF HEROKU
-          # hier wird die 4. Aufgabe bearbeitet: Release der App auf Heroku
+        heroku container:login 
+        heroku stack:set container --app ${APP_NAME}
+        heroku container:release web --app ${APP_NAME}
