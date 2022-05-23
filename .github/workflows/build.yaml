@@ -25,12 +25,12 @@ jobs:
     #      path: ~/.sonar/cache
     #      key: ${{ runner.os }}-sonar
     #      restore-keys: ${{ runner.os }}-sonar
-    - name: Cache Maven packages
-      uses: actions/cache@v1
-      with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+    #- name: Cache Maven packages
+    #  uses: actions/cache@v1
+    #  with:
+    #      path: ~/.m2
+    #      key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+    #      restore-keys: ${{ runner.os }}-m2
     #- name: sonar analysis
     #  run: |
     #    mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=azure_voting_service
