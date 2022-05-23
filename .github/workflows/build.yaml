@@ -1,6 +1,6 @@
 name: Docker Build and Release
-on: [  ]
-#on: [ push ]
+# on: [  ]
+on: [ push ]
 env:
   APP_NAME: "pet-clinic-wg"
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
