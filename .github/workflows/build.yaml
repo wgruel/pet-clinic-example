@@ -16,7 +16,7 @@ jobs:
       with:
         distribution: temurin
         java-version: 11
-    #    cache: maven
+        cache: maven
     ####
     #- name: Cache SonarCloud packages
     #  uses: actions/cache@v1
